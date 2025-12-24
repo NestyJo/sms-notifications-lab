@@ -39,7 +39,9 @@ jobs:
         run: docker build -t ${{ env.IMAGE_NAME }}:latest .
 
       - name: Log in to Docker registry
-        run: echo "${{ secrets.DOCKER_REGISTRY_PASSWORD }}" | docker login ${{ secrets.DOCKER_REGISTRY_URL }} -u "${{ secrets.DOCKER_REGISTRY_USERNAME }}" --password-stdin
+        run: |
+          echo "Logging into registry ${{ secrets.DOCKER_REGISTRY_URL }} as ${{ secrets.DOCKER_REGISTRY_USERNAME }}"
+          echo "${{ secrets.DOCKER_REGISTRY_PASSWORD }}" | docker login ${{ secrets.DOCKER_REGISTRY_URL }} -u "${{ secrets.DOCKER_REGISTRY_USERNAME }}" --password-stdin
 
       - name: Tag image with commit SHA
         run: |
