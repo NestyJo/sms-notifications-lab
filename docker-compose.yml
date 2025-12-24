@@ -1,0 +1,17 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: lab-notification-app
+    environment:
+      SERVER_PORT: 9091
+      DB_HOST: ${DB_HOST:-192.168.30.246}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_NAME: ${DB_NAME:-labnotifications}
+      DB_USERNAME: ${DB_USERNAME:-ernest}
+      DB_PASSWORD: ${DB_PASSWORD:-ernest_12345678}
+      LAB_ORDERS_BASE_URL: ${LAB_ORDERS_BASE_URL:-http://192.168.235.250/labsms/swagger/labtestresults}
+      LAB_ORDERS_SOURCE: ${LAB_ORDERS_SOURCE:-remote}
+    ports:
+      - "9091:9091"

@@ -1,0 +1,34 @@
+# Build output
+/target/
+/logs/
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# Java / JVM
+*.class
+*.log
+hs_err_pid*
+
+# Docker
+*.tar
+*.tar.gz
+
+# Environment
+.env
+*.local
+
+# Temporary files
+*.swp
+*.swo
+~$*
