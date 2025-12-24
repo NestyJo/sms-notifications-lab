@@ -44,7 +44,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
           source: "lab-notification.tar.gz"
           target: "/tmp/lab-notification.tar.gz"
 
@@ -53,7 +53,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
           script: |
             set -e
             if docker ps -a --format '{{.Names}}' | grep -Eq '^lab-notification$'; then
