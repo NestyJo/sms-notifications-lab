@@ -7,8 +7,7 @@ A Spring Boot application for managing laboratory notifications at Muhimbili.
 - JDK 17+
 - Maven 3.8+
 - Docker 20+
-- Access to the remote deployment server (192.168.30.246)
-- Optional: `sshpass` for automated deployments via the helper script
+- Access to the remote deployment server or Docker registry credentials
 
 ## Local Development
 
@@ -31,48 +30,47 @@ Application runs on [http://localhost:8080](http://localhost:8080).
 docker build -t lab-notification:latest .
 ```
 
-## Remote Deployment (Option 2)
+## Manual Remote Deployment Script
 
-The repository includes `scripts/deploy_remote.sh` which automates:
-1. Building the application and Docker image
-2. Saving the image to a tarball
-3. Copying it to the target server
-4. Loading and running the container remotely
-
-### Usage
+`scripts/deploy_remote.sh` automates a local build followed by SCP/SSH to the server.
 
 ```bash
 ./scripts/deploy_remote.sh
 ```
 
-The script prompts for the server password unless `SERVER_PASSWORD` is set:
+Set `SERVER_PASSWORD` (or use SSH keys) before running.
+
+## GitHub Actions Pipeline
+
+`.github/workflows/deploy.yml` builds the app, creates a Docker image, and pushes it to a registry. Configure these secrets:
+
+- `DOCKER_REGISTRY_URL`
+- `DOCKER_REGISTRY_USERNAME`
+- `DOCKER_REGISTRY_PASSWORD`
+- `DOCKER_REGISTRY_REPOSITORY`
+
+## Pulling the Image from Docker Hub (example)
+
+When the pipeline pushes to Docker Hub at `https://hub.docker.com/repository/docker/developerml/lab-notification`, deploy on the server with:
 
 ```bash
-export SERVER_PASSWORD='your_password'
-./scripts/deploy_remote.sh
+docker login -u developerml
+docker pull developerml/lab-notification:latest
+
+docker stop lab-notification || true
+docker rm lab-notification || true
+
+docker run -d --restart unless-stopped \
+  --name lab-notification \
+  -p 9091:9091 \
+  developerml/lab-notification:latest
 ```
 
-Optional arguments:
-
-```bash
-./scripts/deploy_remote.sh <image_tag> <container_name>
-```
-
-Example:
-
-```bash
-./scripts/deploy_remote.sh myorg/lab-notification:1.0 lab-notification-prod
-```
-
-### Requirements on the Server
-
-- Docker installed and running
-- SSH access for the `babou_mamc` user
-- Port `8080` open for HTTP traffic
+Replace the repository URL/credentials if you are using a different registry.
 
 ## Environment Variables
 
-Use an `.env` file (ignored by Git) or system environment variables for sensitive configuration (database credentials, SMS gateway, etc.).
+Use an `.env` file or host-level variables for sensitive configuration (database credentials, SMS gateway, etc.).
 
 ## License
 

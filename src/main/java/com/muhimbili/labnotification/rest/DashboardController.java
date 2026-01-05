@@ -1,5 +1,6 @@
 package com.muhimbili.labnotification.rest;
 
+import com.muhimbili.labnotification.data.response.ApiResponse;
 import com.muhimbili.labnotification.data.response.dashboard.DashboardOverviewResponse;
 import com.muhimbili.labnotification.data.response.dashboard.OrderBacklogResponse;
 import com.muhimbili.labnotification.data.response.dashboard.OrderTrendPoint;
@@ -14,6 +15,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +27,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/dashboard")
+@RequestMapping("/api/v1/dashboard")
 @Validated
 public class DashboardController {
 
@@ -41,7 +43,7 @@ public class DashboardController {
     }
 
     @GetMapping("/overview")
-    public ResponseEntity<DashboardOverviewResponse> overview(
+    public ResponseEntity<ApiResponse<DashboardOverviewResponse>> overview(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false)
@@ -51,11 +53,11 @@ public class DashboardController {
         DateRangeUtils.validateChronology(normalizedFrom, normalizedTo);
 
         DashboardOverviewResponse response = dashboardMetricsService.getOverview(normalizedFrom, normalizedTo);
-        return ResponseEntity.ok(response);
+        return ok(response, "Dashboard overview fetched successfully");
     }
 
     @GetMapping("/orders/trend")
-    public ResponseEntity<List<OrderTrendPoint>> orderTrend(
+    public ResponseEntity<ApiResponse<List<OrderTrendPoint>>> orderTrend(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false)
@@ -70,20 +72,21 @@ public class DashboardController {
             normalizedFrom = normalizedTo.minusDays(DEFAULT_TREND_LIMIT_DAYS);
         }
 
-        return ResponseEntity.ok(
-                dashboardMetricsService.getOrderTrend(normalizedFrom, normalizedTo, granularity)
+        return ok(
+                dashboardMetricsService.getOrderTrend(normalizedFrom, normalizedTo, granularity),
+                "Order trend generated successfully"
         );
     }
 
     @GetMapping("/orders/backlog")
-    public ResponseEntity<OrderBacklogResponse> orderBacklog(
+    public ResponseEntity<ApiResponse<OrderBacklogResponse>> orderBacklog(
             @RequestParam(defaultValue = "" + DEFAULT_BACKLOG_LIMIT)
             @Min(1) @Max(100) int limit) {
-        return ResponseEntity.ok(dashboardMetricsService.getOrderBacklog(limit));
+        return ok(dashboardMetricsService.getOrderBacklog(limit), "Order backlog retrieved successfully");
     }
 
     @GetMapping("/tests/by-department")
-    public ResponseEntity<TestDepartmentStatsResponse> testsByDepartment(
+    public ResponseEntity<ApiResponse<TestDepartmentStatsResponse>> testsByDepartment(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false)
@@ -93,13 +96,14 @@ public class DashboardController {
         LocalDate normalizedTo = DateRangeUtils.defaultTo(toDate);
         DateRangeUtils.validateChronology(normalizedFrom, normalizedTo);
 
-        return ResponseEntity.ok(
-                dashboardMetricsService.getDepartmentStats(normalizedFrom, normalizedTo, departmentId)
+        return ok(
+                dashboardMetricsService.getDepartmentStats(normalizedFrom, normalizedTo, departmentId),
+                "Department statistics calculated successfully"
         );
     }
 
     @GetMapping("/tests/tat")
-    public ResponseEntity<TestTatStatsResponse> testTat(
+    public ResponseEntity<ApiResponse<TestTatStatsResponse>> testTat(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false)
@@ -109,13 +113,14 @@ public class DashboardController {
         LocalDate normalizedTo = DateRangeUtils.defaultTo(toDate);
         DateRangeUtils.validateChronology(normalizedFrom, normalizedTo);
 
-        return ResponseEntity.ok(
-                dashboardMetricsService.getTatStats(normalizedFrom, normalizedTo, departmentId)
+        return ok(
+                dashboardMetricsService.getTatStats(normalizedFrom, normalizedTo, departmentId),
+                "Test turnaround time stats fetched successfully"
         );
     }
 
     @GetMapping("/sms/summary")
-    public ResponseEntity<SmsSummaryResponse> smsSummary(
+    public ResponseEntity<ApiResponse<SmsSummaryResponse>> smsSummary(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false)
@@ -124,13 +129,14 @@ public class DashboardController {
         LocalDate normalizedTo = DateRangeUtils.defaultTo(toDate);
         DateRangeUtils.validateChronology(normalizedFrom, normalizedTo);
 
-        return ResponseEntity.ok(
-                dashboardMetricsService.getSmsSummary(normalizedFrom, normalizedTo)
+        return ok(
+                dashboardMetricsService.getSmsSummary(normalizedFrom, normalizedTo),
+                "SMS summary generated successfully"
         );
     }
 
     @GetMapping("/sms/errors")
-    public ResponseEntity<SmsErrorBreakdownResponse> smsErrors(
+    public ResponseEntity<ApiResponse<SmsErrorBreakdownResponse>> smsErrors(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false)
@@ -141,13 +147,14 @@ public class DashboardController {
         LocalDate normalizedTo = DateRangeUtils.defaultTo(toDate);
         DateRangeUtils.validateChronology(normalizedFrom, normalizedTo);
 
-        return ResponseEntity.ok(
-                dashboardMetricsService.getSmsErrorBreakdown(normalizedFrom, normalizedTo, limit)
+        return ok(
+                dashboardMetricsService.getSmsErrorBreakdown(normalizedFrom, normalizedTo, limit),
+                "SMS error breakdown compiled successfully"
         );
     }
 
     @GetMapping("/sms/patient-issues")
-    public ResponseEntity<PatientNotificationIssueResponse> patientIssues(
+    public ResponseEntity<ApiResponse<PatientNotificationIssueResponse>> patientIssues(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = false)
@@ -158,8 +165,19 @@ public class DashboardController {
         LocalDate normalizedTo = DateRangeUtils.defaultTo(toDate);
         DateRangeUtils.validateChronology(normalizedFrom, normalizedTo);
 
+        return ok(
+                dashboardMetricsService.getPatientNotificationIssues(normalizedFrom, normalizedTo, threshold),
+                "Patient notification issues listed successfully"
+        );
+    }
+
+    private <T> ResponseEntity<ApiResponse<T>> ok(T data, String message) {
         return ResponseEntity.ok(
-                dashboardMetricsService.getPatientNotificationIssues(normalizedFrom, normalizedTo, threshold)
+                ApiResponse.<T>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message(message)
+                        .data(data)
+                        .build()
         );
     }
 }

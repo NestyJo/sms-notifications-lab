@@ -12,7 +12,7 @@ import java.time.Instant;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public class ApplicationController {
 
     private final LabOrdersService labOrdersService;
