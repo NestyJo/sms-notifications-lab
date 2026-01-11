@@ -33,7 +33,7 @@ jobs:
         run: chmod +x mvnw
 
       - name: Build application
-        run: ./mvnw clean package -DskipTests
+        run: ./mvnw clean package -DskipTests,
 
       - name: Build Docker image
         run: docker build -t ${{ env.IMAGE_NAME }}:latest .
